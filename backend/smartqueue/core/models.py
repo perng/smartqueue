@@ -1,6 +1,6 @@
 import json
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+#from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.models import User
 
 from django.forms import widgets
@@ -9,14 +9,15 @@ from rest_framework import serializers
 class UserProfile(models.Model):
     # This field is required.
     user = models.OneToOneField(User)
-    phone_number = PhoneNumberField()
+    phone_number = models.CharField(("phone"), max_length=13, blank=True)
     facebook_id = models.CharField(max_length=30)
     google_id = models.CharField(max_length=30)
 
 
 class Vendor(models.Model):
     name = models.CharField(max_length=200)
-    phone_number = PhoneNumberField(blank=True)
+    #phone_number = PhoneNumberField(blank=True)
+    phone_number = models.CharField(("phone"), max_length=13, blank=True)
     address_1 = models.CharField(("address"), max_length=128, blank=True)
     address_2 = models.CharField(("address cont'd"), max_length=128, blank=True)
 
