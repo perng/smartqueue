@@ -13,3 +13,7 @@ Base path: http://api.olidu.com
 </table>
 
 For example http://api.olidu.com/sq/enqueue/1/1  
+
+
+
+Use Chrome app "REST Console" to test it. 
