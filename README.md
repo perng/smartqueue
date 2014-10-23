@@ -12,4 +12,4 @@ Base path: http://api.olidu.com
 
 </table>
 
-For example http://api.olidu/sq/enqueue/1/1  
+For example http://api.olidu.com/sq/enqueue/1/1  
