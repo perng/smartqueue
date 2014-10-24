@@ -24,23 +24,29 @@ class Init(APIView):
     """
     Populate test data
     """
+    @csrf_exempt
     def get(self,request):
         for i in range(10):
-            u=User(username="user%d" % (i,), password="abc")
-            u.save()
-            v=Vendor(name='Store %d' %(i,), )
-            v.save()
-            q=Queue(vendor=v, name="default",)
-            q.save()
+            u,created=User.objects.get_or_create(username="user%d" % (i,), password="abc")
+            if created:
+                u.save()
+            v,created=Vendor.objects.get_or_create(name='Store %d' %(i,) )
+            if created:
+                v.save()
+            q,created=Queue.objects.get_or_create(vendor=v, name="default")
+            if created:
+                q.save()
 
-        q=Queue.objects.get(pk=0)
+        q=Queue.objects.all()[0]
         users=User.objects.all()
         for u in users:
             r=createReservation(u, q)
             r.save()
+        return JSONResponse({'status':'OK'})
+
 class Enqueue(APIView):
     @csrf_exempt
-    def get(self,request, user_id, queue_id):
+    def put(self,request, user_id, queue_id):
         user=User.objects.get(id=int(user_id))
         queue=Queue.objects.get(id=int(queue_id))
         today = date.today()
@@ -62,7 +68,7 @@ class Enqueue(APIView):
 
 class Dequeue(APIView):
     @csrf_exempt
-    def get(self,request, queue_id, reservation_id):
+    def post(self,request, queue_id, reservation_id):
         queue=Queue.objects.get(id=int(queue_id))
         today = date.today()
         reservation=Reservation.objects.get(queue=queue, reservation_number=int(reservation_id), date=today)

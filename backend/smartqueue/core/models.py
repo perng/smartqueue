@@ -26,8 +26,7 @@ class Vendor(models.Model):
     zip_code = models.CharField(("zipcode"), max_length=5, blank=True)
     def __str__(self):
         return self.name
-    def name(self):
-        return self.name
+
 
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,7 +59,7 @@ class Reservation(models.Model):
 
 def createReservation(user, queue):
     r=Reservation(user=user, queue=queue, status='IQ')
-    n=len(Reservation.objects.find(status_neq= "IQ", queue=queue, date=r.date))
+    n=len(Reservation.objects.filter(queue=queue, date=r.date).exclude(status="IQ"))
     r.reservation_number = n+1
     r.save()
     return r
