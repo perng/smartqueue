@@ -72,10 +72,10 @@ if in_production:
     DATABASES = {
         'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'smartqueue',                      # Or path to database file if using sqlite3.
-        'USER': 'perng',                      # Not used with sqlite3.
+        'NAME': 'smartqueuedb',                      # Or path to database file if using sqlite3.
+        'USER': 'root',                      # Not used with sqlite3.
         'PASSWORD': 'csperng',                  # Not used with sqlite3.
-        'HOST': 'mysql.olidu.com',                      # Set to empty string for localhost. Not used with sqlite3.
+        'HOST': 'localhost',                      # Set to empty string for localhost. Not used with sqlite3.
         'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
         }
     }

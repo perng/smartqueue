@@ -1,7 +1,6 @@
 import json
 from django.db import models
 #from phonenumber_field.modelfields import PhoneNumberField
-from django.contrib.localflavor.us.models import PhoneNumberField
 from django.contrib.auth.models import User
 
 from django.forms import widgets
@@ -10,14 +9,15 @@ from rest_framework import serializers
 class UserProfile(models.Model):
     # This field is required.
     user = models.OneToOneField(User)
-    phone_number = PhoneNumberField()
+    phone_number = models.CharField(("phone"), max_length=13, blank=True)
     facebook_id = models.CharField(max_length=30)
     google_id = models.CharField(max_length=30)
 
 
 class Vendor(models.Model):
     name = models.CharField(max_length=200)
-    phone_number = PhoneNumberField(blank=True)
+    #phone_number = PhoneNumberField(blank=True)
+    phone_number = models.CharField(("phone"), max_length=13, blank=True)
     address_1 = models.CharField(("address"), max_length=128, blank=True)
     address_2 = models.CharField(("address cont'd"), max_length=128, blank=True)
 
@@ -26,8 +26,7 @@ class Vendor(models.Model):
     zip_code = models.CharField(("zipcode"), max_length=5, blank=True)
     def __str__(self):
         return self.name
-    def name(self):
-        return self.name
+
 
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -60,7 +59,7 @@ class Reservation(models.Model):
 
 def createReservation(user, queue):
     r=Reservation(user=user, queue=queue, status='IQ')
-    n=len(Reservation.objects.find(status_neq= "IQ", queue=queue, date=r.date))
+    n=len(Reservation.objects.filter(queue=queue, date=r.date).exclude(status="IQ"))
     r.reservation_number = n+1
     r.save()
     return r
