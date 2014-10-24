@@ -1,6 +1,7 @@
 import json
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+#from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.localflavor.us.models import PhoneNumberField
 from django.contrib.auth.models import User
 
 from django.forms import widgets
