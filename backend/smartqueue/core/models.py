@@ -6,13 +6,16 @@ from django.contrib.auth.models import User
 from django.forms import widgets
 from rest_framework import serializers
 
+
+CLIENT_CHOICES = (('FB', 'Facebook'), ('G', 'Google'))
 class UserProfile(models.Model):
     # This field is required.
     user = models.OneToOneField(User)
     phone_number = models.CharField(("phone"), max_length=13, blank=True)
-    facebook_id = models.CharField(max_length=30)
-    google_id = models.CharField(max_length=30)
-
+    login_client = models.CharField(max_length=10, choices=CLIENT_CHOICES)
+    client_user_id = models.CharField(max_length=30)
+    access_token = models.CharField(max_length=300)
+    token_expiration = models.DateTimeField()
 
 class Vendor(models.Model):
     name = models.CharField(max_length=200)

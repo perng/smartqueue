@@ -9,4 +9,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
     url(r'', include('core.urls')),
+    url(r'^oauth2/', include('provider.oauth2.urls', namespace='oauth2')),
+    url(r'^docs/', include('rest_framework_swagger.urls')),
+    url('', include('social.apps.django_app.urls', namespace='social')),
 )

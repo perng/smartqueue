@@ -37,6 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_swagger',
+#    'provider',
+#    'provider.oauth2',
     'core',
 )
 
@@ -85,7 +88,7 @@ else:
     DATABASES = {
         'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'smartqueuedb.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'sqdb'),
         }
     }
     WSGI_APPLICATION = 'smartqueue.wsgi.application'
@@ -112,3 +115,43 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 SITE_ID = 1
+
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler'
+}
+
+SWAGGER_SETTINGS = {
+    "exclude_namespaces": [], # List URL namespaces to ignore
+    "api_version": '0.1',  # Specify your API's version
+    "api_path": "/",  # Specify the path to your API not a root level
+    "enabled_methods": [  # Specify which methods to enable in Swagger UI
+        'get',
+        'post',
+        'put',
+        'patch',
+        'delete'
+    ],
+    "api_key": '', # An API key
+    "is_authenticated": False,  # Set to True to enforce user authentication,
+    "is_superuser": False,  # Set to True to enforce admin only access
+    "permission_denied_handler": None, # If user has no permisssion, raise 403 error
+}
+
+
+
+AUTHENTICATION_BACKENDS = (
+   #'social.backends.facebook.FacebookOAuth2',
+   #'social.backends.google.GoogleOAuth2',
+   #'social.backends.twitter.TwitterOAuth',
+   #'django.contrib.auth.backends.ModelBackend',
+)
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        #'rest_framework.authentication.OAuth2Authentication',
+    )
+}
+
+FACEBOOK_ID = 356204934544851

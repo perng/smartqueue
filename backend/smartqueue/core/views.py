@@ -1,3 +1,4 @@
+import datetime
 from datetime import date
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -44,7 +45,54 @@ class Init(APIView):
             r.save()
         return JSONResponse({'status':'OK'})
 
+class Register(APIView):
+    """ Register a new user.
+        Input: client:  'FB' or 'G'
+               client_user_id:  the user id in FB or G
+               email: user email
+               first_name: First name
+               last_name:  Last name
+               phone_number: Phone number
+               access_token: the token acquired from Oauth provider
+               token_expiration: date and time of token expiration
+
+        Output json of the form {'id':<user_id>, 'status': <status>}
+        The app should cache <user_id> for future REST calls
+        <status> = 'new registration' for new registration
+                   'access_token updated' if token has been refreshed
+                   'already registered, access_token unchanged' if token hasn't been changed
+
+        The server will check validity of the access_token
+    """
+    @csrf_exempt
+    def put(self, request):
+        print 'request', dir(request)
+        return JSONResponse({'status':'testing'})
+        print 'DATA', request.DATA
+        profile,created = UserProfile.objects.get_or_create(client_user_id=request.DATA.client_user_id, login_client=request.DATA.client)
+        # TODO: access login OAUTH provider to verify the token
+        if created:
+            user=User(username=request.email, email=request.email,first_name=request.first_name, last_name=request.last_name)
+            user.save()
+            profile.user=user
+            profile.phone_number = request.phone_number
+            profile.access_token = request.access_token
+            profile.token_expiration = request.token_expiration
+            profile.save()
+            return JSONResponse({'id':user.id, 'status': 'new registration'})
+        if request.access_token != profile.access_token:
+            profile.access_token = request.access_token
+            timeobj = datetime.datetime.strptime(request.token_expiration, "%H:%M:%S.%f").time()
+            profile.token_expiration = timeobj
+            profile.save()
+            return JSONResponse({'id':profile.user.id, 'status': 'access_token updated'})
+        return JSONResponse({'id':profile.user.id, 'status': 'already registered, access_token unchanged'})
+
+
 class Enqueue(APIView):
+    """ To create a new reservation for a user. This can be called from User app or Vendor app.
+
+    """
     @csrf_exempt
     def put(self,request, user_id, queue_id):
         user=User.objects.get(id=int(user_id))
@@ -67,10 +115,13 @@ class Enqueue(APIView):
         return JSONResponse(serializer.data)
 
 class Dequeue(APIView):
+    """ Mark a reservation as "served".
+    """
     @csrf_exempt
     def post(self,request, queue_id, reservation_id):
         queue=Queue.objects.get(id=int(queue_id))
         today = date.today()
+
         reservation=Reservation.objects.get(queue=queue, reservation_number=int(reservation_id), date=today)
         if reservation.status != 'IQ':
             return JSONResponse({'status':'Already Dequeued'})
@@ -82,16 +133,24 @@ class Dequeue(APIView):
 
 
 class QueryQueue(APIView):
+    """ Query the status of a reservation.
+    """
     @csrf_exempt
-    def get(self,request, queue_id, reservation_id):
-        queue=Queue.objects.get(id=int(queue_id))
-        reservation = Reservation.objects.get(id=int(reservation_id))
-        if reservation.status!='IQ':
-            return JSONResponse({"status":"Served or Cancelled"})
+    def get(self,request, queue_id, reservation_id=None):
         today = date.today()
+        queue=Queue.objects.get(id=int(queue_id))
+        if reservation_id:
+            reservation = Reservation.objects.get(id=int(reservation_id))
+            if reservation.status!='IQ':
+                return JSONResponse({"status":"Served or Cancelled"})
+            res_ahead = Reservation.objects.filter(queue=queue, date=today,
+                                                   reservation_number__lt=reservation.reservation_number,
+                                                    status='IQ').count()
+            return JSONResponse({"Your Reservation#": reservation.reservation_number,
+                                 "Number of customers ahead": res_ahead,
+                                 "estimate minute": max(0,res_ahead*10)})
         res_ahead = Reservation.objects.filter(queue=queue, date=today,
-                                               reservation_number__lt=reservation.reservation_number,
                                                 status='IQ').count()
-        return JSONResponse({"Your Reservation#": reservation.reservation_number,
-                             "Number of customers ahead": res_ahead,
+        return JSONResponse({"Number of customers ahead": res_ahead,
                              "estimate minute": max(0,res_ahead*10)})
+
